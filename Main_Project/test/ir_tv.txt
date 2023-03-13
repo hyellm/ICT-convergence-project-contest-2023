@@ -1,0 +1,50 @@
+""" 라즈베리파이 코드"""
+#LIRC 버전 0.10.1
+
+# 라즈베리파이 OS 업데이트 + LIRC 모듈 설치
+sudo apt-get upgrade -y && sudo aptget upgrade -y
+sudo apt-get install lirc -y      
+
+#부트 로더 설정 : 라즈베리파이 시작시 LIRC 모듈도 구동
+sudo nano /boot/config.txt   
+
+dtoverlay=gpio-ir, gpio_pin=18  
+dtoverlay=gpio-ir-tx, gpio_pin=17
+
+#LIRC 모듈 하드웨어 설정
+sudo nano /etc/lirc/hardware.conf  
+LIRCD_ARGS="--uinput --listen"
+LOAD_MOUDES=true
+DRIVER="default"
+DEVICE="/dev/lirc0"
+MODULES="lirc_rpi"
+
+#LIRC 모듈 옵션 설정
+sudo nano /etc/lirc/lirc_options.conf 
+driver=default 
+device=/dev/lirc0
+
+#재부팅 : 부트로더 값 인식 위해
+sudo reboot 
+
+sudo /etc/init.d/lircd status  #LIRC 모듈 작동 확인
+
+###########리모컨 등록 부분############
+sudo /etc/init.d/lircd stop  #LIRC 서비스 중지
+
+sudo mode2 -m -d /dev/lirc0  #리모컨 신호 확인 (단, 부트로더에서 송신 부분 주석처리 후 재부팅)
+
+sudo mode2 -m -d /dev/lirc0 > wow4.lircd.conf  #리모컨 신호 기록 
+sudo cp ~/wow4.lircd.conf /etc/lirc/lircd.conf.d/wow4.lircd.conf  
+sudo mv devinput.lircd.conf devinput.lircd.conf.dist  
+sudo nano /boot/config.txt  #부트로더 파일에서 송신 부분 주석 처리 해제 후 재부팅
+sudo /etc/init.d/lircd status  #동작 상태 확인
+
+#파일에 등록된 명령어 확인
+irsend LIST wow4 ""  
+
+#실행
+irsend SEND_ONCE wow4 KEY_POWER     #전원 on
+irsend SEND_ONCE wow4 KEY_MUTE      #전원 off  (power,mute : 같은 버튼 임으로 켜고 끄기 가능)
+irsend SEND_ONCE wow4 KEY_CHANNELUP   #채널 업
+irsend SEND_ONCE wow4 KEY_CHANNELDOWN  #채널 다운
