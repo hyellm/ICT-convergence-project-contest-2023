@@ -34,6 +34,7 @@ def decode_pose(
         displacements_fwd,
         displacements_bwd
 ):
+    print('decod_pose function')
     num_parts = scores.shape[2]
     num_edges = len(PARENT_CHILD_TUPLES)
 
@@ -41,6 +42,10 @@ def decode_pose(
     instance_keypoint_coords = np.zeros((num_parts, 2))
     instance_keypoint_scores[root_id] = root_score
     instance_keypoint_coords[root_id] = root_image_coord
+    print('root score : ', root_score)
+    print('root coords : ', root_image_coord)
+    print('root id : ', root_id)
+
 
     for edge in reversed(range(num_edges)):
         target_keypoint_id, source_keypoint_id = PARENT_CHILD_TUPLES[edge]
@@ -51,6 +56,11 @@ def decode_pose(
                 instance_keypoint_coords[source_keypoint_id],
                 target_keypoint_id,
                 scores, offsets, output_stride, displacements_bwd)
+            
+            print('score : ', score)
+            print('coords : ', coords)
+            print('target_keypoint_id : ', target_keypoint_id)
+            print('source_keypoint_id : ', source_keypoint_id)
             instance_keypoint_scores[target_keypoint_id] = score
             instance_keypoint_coords[target_keypoint_id] = coords
 
