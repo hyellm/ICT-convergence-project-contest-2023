@@ -3,6 +3,7 @@ from posenet.constants import *
 import time
 import scipy.ndimage as ndi
 import numpy as np
+from posenet.decode import *
 
 
 #predict한 값을 바탕으로 신체부위를 특정할 수 있도록 빌드하는 함수
@@ -95,13 +96,16 @@ def dcode_multiple_poses(
             root_coord[0], root_coord[1] ,root_id
         ]
 
+        #어디에 사용하는지 모르겠음. 거리측정?
         if within_nms_radius_fast(
             pose_keypoint_coords[:pose_count, root_id, :], squared_nms_radius, root_image_coords
                ):
             continue
 
         keypoint_scores, keypoint_coords = decode_pose(
-            
+            root_score, root_id, root_image_coords,
+            scores, offsets, output_stride,
+            displacements_fwd, displacements_bwd
         )
 
 
